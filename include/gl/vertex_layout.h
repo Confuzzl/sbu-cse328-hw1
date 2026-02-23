@@ -56,11 +56,11 @@ template <typename... VertexTypes> void enable(const GLuint vaoID) {
 struct alignas(4) pos {
   glm::vec2 _pos;
 
-  constexpr pos() = default;
+  /*constexpr*/ pos() = default;
   template <typename X, typename Y>
-  constexpr pos(const X x, const Y y)
+  /*constexpr*/ pos(const X x, const Y y)
       : _pos{static_cast<float>(x), static_cast<float>(y)} {}
-  constexpr pos(const glm::vec2 pos) : _pos{pos} {}
+  /*constexpr*/ pos(const glm::vec2 pos) : _pos{pos} {}
 
   const void *data() const { return &_pos; }
 };
@@ -70,12 +70,12 @@ struct alignas(4) postex {
   glm::vec2 pos;
   glm::u16vec2 tex;
 
-  constexpr postex() = default;
+  /*constexpr*/ postex() = default;
   template <typename X, typename Y, typename U, typename V>
-  constexpr postex(const X x, const Y y, const U u, const V v)
+  /*constexpr*/ postex(const X x, const Y y, const U u, const V v)
       : pos{static_cast<float>(x), static_cast<float>(y)},
         tex{static_cast<unsigned short>(u), static_cast<unsigned short>(v)} {}
-  constexpr postex(const glm::vec2 pos, const glm::u16vec2 tex)
+  /*constexpr*/ postex(const glm::vec2 pos, const glm::u16vec2 tex)
       : pos{pos}, tex{tex} {}
 
   const void *data() const { return &pos; }

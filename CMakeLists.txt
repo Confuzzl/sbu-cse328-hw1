@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
-project(test)
+project(hw1)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED)
 
 
-add_executable(test
+add_executable(hw1
 		"src/main.cpp"
 		"src/app.cpp"
 		"src/util.cpp" 
@@ -22,23 +22,27 @@ add_executable(test
 		"include/gl/vertex_layout.h" 
 		"include/gl/component/vertex.h" 
 		"include/gl/component/fragment.h" "include/gl/texture.h" "src/gl/texture.cpp" "include/renderer.h" "src/color.cpp" "src/gl/vertex_layout.cpp" "src/renderer.cpp" "include/callback.h" "src/callback.cpp" "include/input/key.h" "include/input/input_handler.h" "src/input/key.cpp" "src/input/input_handler.cpp" "include/scene.h" "src/scene.cpp")
-target_include_directories(test PUBLIC include)
-target_compile_definitions(test PRIVATE SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+target_include_directories(hw1 PUBLIC include)
+target_compile_definitions(hw1 PRIVATE SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 if (WIN32)
 	list(APPEND CMAKE_PREFIX_PATH "C:/Program Files (x86)/GLFW/lib/cmake")
 endif()
 find_package(glfw3 REQUIRED)
-target_link_libraries(test glfw)
+target_link_libraries(hw1 glfw)
 
 add_subdirectory("glad")
-target_link_libraries(test glad)
+target_link_libraries(hw1 glad)
 
 add_subdirectory("glm")
-target_link_libraries(test glm::glm)
+target_link_libraries(hw1 glm::glm)
 
 add_subdirectory("imgui")
-target_link_libraries(test imgui)
+target_link_libraries(hw1 imgui)
 
 add_subdirectory("fmt")
-target_link_libraries(test fmt::fmt)
+target_link_libraries(hw1 fmt::fmt)
+
+if (CMAKE_DL_LIBS)
+	target_link_libraries(hw1 ${CMAKE_DL_LIBS})
+endif()

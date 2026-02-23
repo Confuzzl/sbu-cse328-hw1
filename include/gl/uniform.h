@@ -44,29 +44,29 @@ template <typename T> struct Uniform {
     fmt::println("{} | {}:{}", programID, name, location);
   }
 
-#define UNIFORM_GET_SCALAR(type, scalar_type)                                  \
-  template <> type get() const {                                               \
-    type out;                                                                  \
+#define UNIFORM_GET_SCALAR(gl_type, type, scalar_type)                         \
+  gl_type get##type() const {                                                  \
+    gl_type out;                                                               \
     glGetUniform##scalar_type##v(programID, location, &out);                   \
     return out;                                                                \
   }
-#define UNIFORM_GET_VECTOR(type, vector_type)                                  \
-  template <std::size_t L> glm::vec<L, type> get() const {                     \
-    glm::vec<L, type> out;                                                     \
+#define UNIFORM_GET_VECTOR(gl_type, type, vector_type)                         \
+  template <std::size_t L> auto getVector##type() const {                      \
+    glm::vec<L, gl_type> out;                                                  \
     glGetnUniform##scalar_type##v(programID, location, sizeof(out),            \
                                   glm::value_ptr(out));                        \
     return out;                                                                \
   }
 
-  template <typename T> T get() const;
-  UNIFORM_GET_SCALAR(GLint, i)
-  UNIFORM_GET_SCALAR(GLuint, ui)
-  UNIFORM_GET_SCALAR(GLfloat, f)
-  UNIFORM_GET_SCALAR(GLdouble, d)
-  UNIFORM_GET_VECTOR(GLint, i)
-  UNIFORM_GET_VECTOR(GLuint, ui)
-  UNIFORM_GET_VECTOR(GLfloat, f)
-  UNIFORM_GET_VECTOR(GLdouble, d)
+  UNIFORM_GET_SCALAR(GLint, Int, i)
+  UNIFORM_GET_SCALAR(GLuint, Uint, ui)
+  UNIFORM_GET_SCALAR(GLfloat, Float, f)
+  UNIFORM_GET_SCALAR(GLdouble, Double, d)
+
+  UNIFORM_GET_VECTOR(GLint, Int, i)
+  UNIFORM_GET_VECTOR(GLuint, Uint, ui)
+  UNIFORM_GET_VECTOR(GLfloat, Float, f)
+  UNIFORM_GET_VECTOR(GLdouble, Double, d)
 
 #undef UNIFORM_GET_SCALAR
 #undef UNIFORM_GET_VECTOR

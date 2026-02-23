@@ -1,7 +1,11 @@
 #include "app.h"
 
-#include "util.h"
+#include <GLFW/glfw3.h>
+
+#include <cstdlib>
 #include <stdexcept>
+
+#include "util.h"
 
 int main() {
   try {

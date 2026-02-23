@@ -14,6 +14,8 @@ struct InputHandler {
 
   InputHandler();
 
+  glm::ivec2 snappedCursorPos() const;
+
   void processKeys(const double dt);
 
   void keyCallback(GLFWwindow *window, int key, int scancode, int action,

@@ -15,6 +15,7 @@ struct Initializer {
   glm::ivec2 windowSize;
 
   Initializer();
+  ~Initializer();
 };
 struct App : Initializer {
   Renderer renderer;
@@ -23,7 +24,7 @@ struct App : Initializer {
   Scene scene;
 
   App();
-  ~App();
+  //~App();
 
   void run();
   void close();

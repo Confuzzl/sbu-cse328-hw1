@@ -2,29 +2,27 @@
 
 #define SET_UNIFORM_TEMPLATE(U, T, call)                                       \
   template <>                                                                  \
-  void setUniform(const GL::Uniform<U> &uniform, const T value) const {        \
+  inline void setUniform(const Program &p, const GL::Uniform<U> &uniform,      \
+                         const T value) {                                      \
     call;                                                                      \
   }
 #define SET_SCALAR(type, scalar_type)                                          \
   SET_UNIFORM_TEMPLATE(                                                        \
-      type, type, glProgramUniform1##scalar_type(ID, uniform.location, value))
-#define SET_VECTOR_2(type, vector_type)                                        \
+      type, type,                                                              \
+      glProgramUniform1##scalar_type(p.ID, uniform.location, value))
+#define SET_VECTOR(type, vector_type)                                          \
   SET_UNIFORM_TEMPLATE(type, type,                                             \
                        glProgramUniform##vector_type##v(                       \
-                           ID, uniform.location, 1, glm::value_ptr(value)))
-#define SET_VECTOR(type, vector_type)                                          \
-  SET_UNIFORM_TEMPLATE(type, type /* &*/,                                      \
-                       glProgramUniform##vector_type##v(                       \
-                           ID, uniform.location, 1, glm::value_ptr(value)))
+                           p.ID, uniform.location, 1, glm::value_ptr(value)))
 #define SET_MATRIX(type, matrix_type)                                          \
   SET_UNIFORM_TEMPLATE(                                                        \
-      type, type /* &*/,                                                       \
+      type, type,                                                              \
       glProgramUniformMatrix##matrix_type##fv(                                 \
-          ID, uniform.location, 1, GL_FALSE, glm::value_ptr(value)))
+          p.ID, uniform.location, 1, GL_FALSE, glm::value_ptr(value)))
 
 #define SET_UNIFORM(func_name, param_t, param_name, shader, def)               \
   auto &set##func_name(const param_t param_name def) {                         \
-    setUniform(shader.param_name, param_name);                                 \
+    setUniform(*this, shader.param_name, param_name);                          \
     return *this;                                                              \
   }
 #define SET_UNIFORM_V(func_name, param_t, param_name, def)                     \
@@ -70,20 +68,18 @@ struct Program {
   Program(const std::initializer_list<Shader> shaders);
   ~Program();
   MOVE_ONLY_TYPE(Program)
-
-  template <typename U, typename T>
-  void setUniform(const U &uniform, const T value) const;
-
-  SET_SCALAR(bool, i)
-  SET_SCALAR(int, i)
-  SET_SCALAR(unsigned int, ui)
-  SET_SCALAR(Color, ui)
-  SET_SCALAR(float, f)
-  SET_VECTOR_2(glm::vec2, 2f)
-  SET_VECTOR_2(glm::uvec2, 2ui)
-  SET_VECTOR(glm::uvec3, 3ui)
-  SET_MATRIX(glm::mat4, 4)
 };
+template <typename U, typename T>
+void setUniform(const Program &p, const U &uniform, const T value);
+SET_SCALAR(bool, i)
+SET_SCALAR(int, i)
+SET_SCALAR(unsigned int, ui)
+SET_SCALAR(Color, ui)
+SET_SCALAR(float, f)
+SET_VECTOR(glm::vec2, 2f)
+SET_VECTOR(glm::uvec2, 2ui)
+SET_VECTOR(glm::uvec3, 3ui)
+SET_MATRIX(glm::mat4, 4)
 } // namespace GL
 
 namespace shaders {
@@ -101,7 +97,6 @@ private:
   void bind(const GL::VBO &vbo) const {
     glUseProgram(ID);
     glBindVertexArray(vao.ID);
-    // glBindVertexBuffer(0, vbo.ID, 0, vbo.stride);
     glVertexArrayVertexBuffer(vao.ID, 0, vbo.ID, 0, vbo.stride);
   }
   void bind(const GL::VBO &vbo, const GL::EBO &ebo) const {
@@ -110,15 +105,20 @@ private:
   }
 
 public:
-  void draw(const GLenum primitive, GL::VBO &vbo) const {
+  void draw(const GLenum primitive, GL::VBO &vbo,
+            const bool reset = true) const {
     bind(vbo);
-    // print_info(fmt::format("vbo.count={}", vbo.count));
     glDrawArrays(primitive, 0, vbo.count);
+    if (reset)
+      vbo.reset();
   }
-  void draw(const GLenum primitive, GL::VBO &vbo, const GL::EBO &ebo) const {
+  void draw(const GLenum primitive, GL::VBO &vbo, const GL::EBO &ebo,
+            const bool reset = true) const {
     bind(vbo, ebo);
     glDrawElements(primitive, ebo.count, ebo.type,
                    reinterpret_cast<const void *>(0));
+    if (reset)
+      vbo.reset();
   }
 };
 template <typename V, typename F> struct SimpleProgram : BaseProgram<V, F> {
