@@ -40,25 +40,6 @@ Initializer::Initializer() {
     throw std::runtime_error{"GLAD FAILED TO LOAD"};
   }
 
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  io.ConfigFlags |=
-      ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_DockingEnable;
-  ImGui_ImplGlfw_InitForOpenGL(window, true);
-  ImGui_ImplOpenGL3_Init("#version 450");
-  ImGui::StyleColorsDark();
-}
-Initializer::~Initializer() {
-  ImGui_ImplOpenGL3_Shutdown();
-  ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();
-
-  // glfwDestroyWindow(window);
-  // glfwTerminate();
-}
-
-App::App() : Initializer{} {
   glfwSetFramebufferSizeCallback(window, callback::framebufferSize);
   glfwSetWindowSizeCallback(window, callback::windowSize);
 
@@ -82,6 +63,22 @@ App::App() : Initializer{} {
   glEnable(GL_DEBUG_OUTPUT);
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageCallback(callback::debug, 0);
+
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 450");
+  ImGui::StyleColorsDark();
+}
+Initializer::~Initializer() {
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
+
+  // glfwDestroyWindow(window);
+  // glfwTerminate();
 }
 
 void App::run() {

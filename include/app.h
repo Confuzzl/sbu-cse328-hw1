@@ -23,9 +23,6 @@ struct App : Initializer {
 
   Scene scene;
 
-  App();
-  //~App();
-
   void run();
   void close();
 };
