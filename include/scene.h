@@ -13,16 +13,12 @@ struct Scene {
     LINE,
     POLYLINE,
     ELLIPSE,
-    BONUS
   } toolstate = ToolState::LINE;
 
   // private:
   static constexpr auto INITIAL_POINT_CAPACITY = 4096;
   std::vector<glm::vec2> points{};
   std::vector<glm::vec2> previewPoints{};
-
-  // glm::vec2 start = {-1, -1};
-  // glm::vec2 preview{};
 
   glm::ivec2 smallStart = {-1, -1};
   glm::ivec2 smallPreview{};
@@ -37,8 +33,13 @@ struct Scene {
 
   bool circle = false;
 
-  bool startSet() const { return /*start*/ smallStart != glm::ivec2{-1, -1}; }
-  void resetStart() { /*start*/ smallStart = {-1, -1}; }
+
+  glm::vec3 quadraticParams{1};
+  glm::vec4 cubicParams{1};
+  glm::vec3 superParams{1};
+
+  bool startSet() const { return smallStart != glm::ivec2{-1, -1}; }
+  void resetStart() { smallStart = {-1, -1}; }
 
   const std::vector<glm::vec2> &generatePreview();
 

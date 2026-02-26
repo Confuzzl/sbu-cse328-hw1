@@ -249,9 +249,6 @@ const std::vector<glm::vec2> &Scene::generatePreview() {
                       glm::abs(smallPreview - smallStart));
     break;
   }
-  case Scene::ToolState::BONUS: {
-    break;
-  }
   }
 
   return previewPoints;

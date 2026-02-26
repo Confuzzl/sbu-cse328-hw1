@@ -11,6 +11,7 @@
 struct Initializer {
   GLFWwindow *window = nullptr;
   static constexpr glm::ivec2 DEFAULT_DIMENSIONS{1280, 720};
+  float windowScale;
   glm::ivec2 framebufferSize;
   glm::ivec2 windowSize;
 

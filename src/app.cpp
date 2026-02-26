@@ -1,5 +1,6 @@
 #include "app.h"
 
+#include <GLFW/glfw3.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <fmt/color.h>
@@ -30,9 +31,26 @@ Initializer::Initializer() {
   if (!window) {
     throw std::runtime_error{"GLFW FAILED TO CREATE WINDOW"};
   }
+  float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+  
+  fmt::println("scale = {}", main_scale);
+
+  glm::vec2 scale;
+  glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &scale.x, &scale.y);
+  fmt::println("scale2 = ({},{})", scale.x, scale.y);
 
   glfwGetFramebufferSize(window, &framebufferSize.x, &framebufferSize.y);
   glfwGetWindowSize(window, &windowSize.x, &windowSize.y);
+
+  fmt::println("fb=({},{}) ws=({},{})", framebufferSize.x, framebufferSize.y, windowSize.x, windowSize.y);
+
+
+  const auto xScale = static_cast<float>(framebufferSize.x) / windowSize.x, yScale = static_cast<float>(framebufferSize.y) / windowSize.y;
+  if (xScale != yScale)
+	  throw std::runtime_error{"window scales didnt match"};
+  fmt::println("windowscale={}", xScale);
+  windowScale = xScale;
+
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
 
@@ -124,6 +142,11 @@ void App::run() {
       //                   ImGui::GetIO().WantCaptureMouse);
       // ImGui::Text(foo.c_str());
 
+	  glm::dvec2 cursorPos;
+	  glfwGetCursorPos(window, &cursorPos.x, &cursorPos.y);
+	  foo = fmt::format("pos = {:.1f} {:.1f}", cursorPos.x, cursorPos.y);
+	  ImGui::Text(foo.c_str());
+
       foo =
           fmt::format("start = {} {}", scene.smallStart.x, scene.smallStart.y);
       ImGui::Text(foo.c_str());
@@ -143,6 +166,8 @@ void App::run() {
 
       foo = fmt::format("circle = {}", scene.circle);
       ImGui::Text(foo.c_str());
+	  
+	  ImGui::SeparatorText("Tools");
 
       struct ButtonData {
         const char *name;
@@ -151,12 +176,12 @@ void App::run() {
           {Scene::ToolState::LINE, {"1: Line"}},
           {Scene::ToolState::POLYLINE, {"3: Polyline"}},
           {Scene::ToolState::ELLIPSE, {"4: Ellipse"}},
-          {Scene::ToolState::BONUS, {"BONUS"}},
+          // {Scene::ToolState::BONUS, {"BONUS"}},
       };
 
       for (const auto [state, data] : buttonData) {
         static constexpr auto button = [](auto name) {
-          static constexpr ImVec2 SIZE{100, 100};
+          static constexpr ImVec2 SIZE{100, 75};
           ImGui::SetCursorPosX((ImGui::GetWindowSize().x - SIZE.x) / 2);
           return ImGui::Button(name, SIZE);
         };
@@ -175,6 +200,16 @@ void App::run() {
         scene.points.clear();
       }
 
+	  ImGui::SeparatorText("Bonus parameters");
+	  static int rad = 0;
+	  ImGui::RadioButton("Quadratic", &rad, 0);
+	  ImGui::RadioButton("Cubic", &rad, 1);
+	  ImGui::RadioButton("Super Quadric", &rad, 2);
+
+	  ImGui::SliderFloat("a", &scene.quadraticParams.x, -10, +10); 
+	  ImGui::SliderFloat("b", &scene.quadraticParams.y, -10, +10); 
+	  ImGui::SliderFloat("c", &scene.quadraticParams.z, -10, +10); 
+	  
       ImGui::End();
     }
 
