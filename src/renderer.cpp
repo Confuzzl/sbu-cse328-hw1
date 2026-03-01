@@ -11,15 +11,18 @@
 #include "gl/vertex_layout.h"
 
 Renderer::Renderer()
-    : vbo{GL::VBO::create<shaders::vertex_layout::pos>(
+    : commited{GL::VBO::create<shaders::vertex_layout::pos>(
           Scene::INITIAL_POINT_CAPACITY)},
       preview{GL::VBO::create<shaders::vertex_layout::pos>(
+          Scene::INITIAL_POINT_CAPACITY)},
+      bonus{GL::VBO::create<shaders::vertex_layout::pos>(
           Scene::INITIAL_POINT_CAPACITY)} {
   glPointSize(Scene::PIXEL_SCALE);
-  glLineWidth(5.0f);
+  glLineWidth(Scene::PIXEL_SCALE);
 }
 void Renderer::render() {
   static auto point = GL::VBO::create<shaders::vertex_layout::pos>(1);
+  static auto axes = GL::VBO::create<shaders::vertex_layout::pos>(2);
 
   {
     using namespace shaders::uniforms;
@@ -27,8 +30,21 @@ void Renderer::render() {
         0, app().framebufferSize.x, 0, app().framebufferSize.y, -1, +1)});
   }
 
-  vbo.writeList(app().scene.points);
-  shaders.basic.setFragColor(RED).draw(GL_POINTS, vbo);
+  if (showAxes && app().scene.bonusState != Scene::BonusState::NONE) {
+    const auto offset = Scene::asBig(app().scene.bonusOffset);
+    axes.write(glm::vec2{0, offset.y});
+    axes.write(glm::vec2{app().framebufferSize.x, offset.y});
+    shaders.basic.setFragColor(BLACK).draw(GL_LINES, axes);
+    axes.write(glm::vec2{offset.x, 0});
+    axes.write(glm::vec2{offset.x, app().framebufferSize.y});
+    shaders.basic.setFragColor(BLACK).draw(GL_LINES, axes);
+  }
+
+  bonus.writeList(app().scene.generateBonus());
+  shaders.basic.setFragColor(ORANGE).draw(GL_POINTS, bonus);
+
+  commited.writeList(app().scene.commitedPoints);
+  shaders.basic.setFragColor(RED).draw(GL_POINTS, commited);
 
   if (app().scene.startSet()) {
     preview.writeList(app().scene.generatePreview());

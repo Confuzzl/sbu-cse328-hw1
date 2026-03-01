@@ -21,7 +21,7 @@ add_executable(hw1
 		"include/gl/vao.h" 
 		"include/gl/vertex_layout.h" 
 		"include/gl/component/vertex.h" 
-		"include/gl/component/fragment.h" "include/gl/texture.h" "src/gl/texture.cpp" "include/renderer.h" "src/color.cpp" "src/gl/vertex_layout.cpp" "src/renderer.cpp" "include/callback.h" "src/callback.cpp" "include/input/key.h" "include/input/input_handler.h" "src/input/key.cpp" "src/input/input_handler.cpp" "include/scene.h" "src/scene.cpp")
+		"include/gl/component/fragment.h" "include/gl/texture.h" "src/gl/texture.cpp" "include/renderer.h" "src/color.cpp" "src/gl/vertex_layout.cpp" "src/renderer.cpp" "include/callback.h" "src/callback.cpp" "include/input/key.h" "include/input/input_handler.h" "src/input/key.cpp" "src/input/input_handler.cpp" "include/scene.h" "src/scene.cpp" "src/scene_basic_impl.cpp" "src/scene_bonus_impl.cpp")
 target_include_directories(hw1 PUBLIC include)
 target_compile_definitions(hw1 PRIVATE SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 

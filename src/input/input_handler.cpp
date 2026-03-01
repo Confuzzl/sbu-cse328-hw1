@@ -26,11 +26,9 @@ InputHandler::InputHandler()
                [](const double) { app().scene.circle = false; }}},
       } {}
 glm::ivec2 InputHandler::snappedCursorPos() const {
-  return {cursorPos.x / Scene::PIXEL_SCALE/* * Scene::PIXEL_SCALE +
-              Scene::PIXEL_SCALE / 2*/,
-          (app().windowSize.y * app().windowScale - cursorPos.y) / Scene::PIXEL_SCALE /**
-                  Scene::PIXEL_SCALE +
-              Scene::PIXEL_SCALE / 2*/};
+  return {cursorPos.x / Scene::PIXEL_SCALE,
+          (app().windowSize.y * app().windowScale - cursorPos.y) /
+              Scene::PIXEL_SCALE};
 }
 
 void InputHandler::processKeys(const double dt) {
@@ -44,8 +42,9 @@ void InputHandler::keyCallback(GLFWwindow *window, int key, int scancode,
 }
 void InputHandler::cursorPosCallback(GLFWwindow *window, double xpos,
                                      double ypos) {
-  cursorPos = {std::clamp<double>(xpos, 0, app().windowSize.x) * app().windowScale,
-               std::clamp<double>(ypos, 0, app().windowSize.y) * app().windowScale};
+  cursorPos = {
+      std::clamp<double>(xpos, 0, app().windowSize.x) * app().windowScale,
+      std::clamp<double>(ypos, 0, app().windowSize.y) * app().windowScale};
   app().scene.smallPreview = snappedCursorPos();
 }
 void InputHandler::mouseButtonCallback(GLFWwindow *window, int button,

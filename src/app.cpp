@@ -1,11 +1,11 @@
 #include "app.h"
 
-#include <GLFW/glfw3.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <fmt/color.h>
 #include <fmt/format.h>
 #include <glad/gl.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <imgui.h>
 
@@ -31,8 +31,9 @@ Initializer::Initializer() {
   if (!window) {
     throw std::runtime_error{"GLFW FAILED TO CREATE WINDOW"};
   }
-  float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-  
+  float main_scale =
+      ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
+
   fmt::println("scale = {}", main_scale);
 
   glm::vec2 scale;
@@ -42,12 +43,13 @@ Initializer::Initializer() {
   glfwGetFramebufferSize(window, &framebufferSize.x, &framebufferSize.y);
   glfwGetWindowSize(window, &windowSize.x, &windowSize.y);
 
-  fmt::println("fb=({},{}) ws=({},{})", framebufferSize.x, framebufferSize.y, windowSize.x, windowSize.y);
+  fmt::println("fb=({},{}) ws=({},{})", framebufferSize.x, framebufferSize.y,
+               windowSize.x, windowSize.y);
 
-
-  const auto xScale = static_cast<float>(framebufferSize.x) / windowSize.x, yScale = static_cast<float>(framebufferSize.y) / windowSize.y;
+  const auto xScale = static_cast<float>(framebufferSize.x) / windowSize.x,
+             yScale = static_cast<float>(framebufferSize.y) / windowSize.y;
   if (xScale != yScale)
-	  throw std::runtime_error{"window scales didnt match"};
+    throw std::runtime_error{"window scales didnt match"};
   fmt::println("windowscale={}", xScale);
   windowScale = xScale;
 
@@ -129,7 +131,6 @@ void App::run() {
                        ImGuiWindowFlags_NoCollapse |
                        ImGuiWindowFlags_NoTitleBar);
 
-      // ImGui::ShowDemoWindow();
       auto foo = fmt::format("dt = {:.4f}", dt);
       ImGui::Text(foo.c_str());
 
@@ -142,10 +143,10 @@ void App::run() {
       //                   ImGui::GetIO().WantCaptureMouse);
       // ImGui::Text(foo.c_str());
 
-	  glm::dvec2 cursorPos;
-	  glfwGetCursorPos(window, &cursorPos.x, &cursorPos.y);
-	  foo = fmt::format("pos = {:.1f} {:.1f}", cursorPos.x, cursorPos.y);
-	  ImGui::Text(foo.c_str());
+      glm::dvec2 cursorPos;
+      glfwGetCursorPos(window, &cursorPos.x, &cursorPos.y);
+      foo = fmt::format("pos = {:.1f} {:.1f}", cursorPos.x, cursorPos.y);
+      ImGui::Text(foo.c_str());
 
       foo =
           fmt::format("start = {} {}", scene.smallStart.x, scene.smallStart.y);
@@ -158,7 +159,7 @@ void App::run() {
       // foo = fmt::format("preview = {} {}", scene.preview.x, scene.preview.y);
       // ImGui::Text(foo.c_str());
 
-      foo = fmt::format("commited = {}", scene.points.size());
+      foo = fmt::format("commited = {}", scene.commitedPoints.size());
       ImGui::Text(foo.c_str());
 
       foo = fmt::format("connect poly = {}", scene.connectPoly);
@@ -166,8 +167,8 @@ void App::run() {
 
       foo = fmt::format("circle = {}", scene.circle);
       ImGui::Text(foo.c_str());
-	  
-	  ImGui::SeparatorText("Tools");
+
+      ImGui::SeparatorText("Tools");
 
       struct ButtonData {
         const char *name;
@@ -196,20 +197,46 @@ void App::run() {
         }
       }
 
-      if (ImGui::Button("CLEAR", {ImGui::GetContentRegionAvail().x, 50})) {
-        scene.points.clear();
+      ImGui::SeparatorText("BONUS");
+      static int rad = 0;
+      ImGui::RadioButton("None", &rad, 0);
+      ImGui::RadioButton("Quadratic", &rad, 1);
+      ImGui::RadioButton("Cubic", &rad, 2);
+      ImGui::RadioButton("Super Quadric", &rad, 3);
+      scene.bonusState = static_cast<Scene::BonusState>(rad);
+      if (scene.bonusState != Scene::BonusState::NONE) {
+        ImGui::Checkbox("Show axes", &renderer.showAxes);
+
+        ImGui::SeparatorText("Offset");
+        ImGui::SliderInt("x", &scene.bonusOffset.x, 0,
+                         framebufferSize.x / Scene::PIXEL_SCALE);
+        ImGui::SliderInt("y", &scene.bonusOffset.y, 0,
+                         framebufferSize.y / Scene::PIXEL_SCALE);
+
+        ImGui::SeparatorText("Parameters");
+        switch (scene.bonusState) {
+        case Scene::BonusState::QUADRATIC: {
+          ImGui::SliderFloat("a", &scene.quadraticParams.x, -1, +1);
+          ImGui::SliderFloat("b", &scene.quadraticParams.y, -3, +3);
+          ImGui::SliderFloat("c", &scene.quadraticParams.z, -100, +100);
+          break;
+        }
+        case Scene::BonusState::CUBIC: {
+          ImGui::SliderFloat("a", &scene.cubicParams.x, -0.01, +0.01);
+          ImGui::SliderFloat("b", &scene.cubicParams.y, -2, +2);
+          ImGui::SliderFloat("c", &scene.cubicParams.z, -10, +10);
+          ImGui::SliderFloat("d", &scene.cubicParams.w, -100, +100);
+          break;
+        }
+        case Scene::BonusState::SUPER_QUADRIC: {
+          ImGui::SliderFloat("a", &scene.superParams.x, -10, +10);
+          ImGui::SliderFloat("b", &scene.superParams.y, -10, +10);
+          ImGui::SliderFloat("c", &scene.superParams.z, -10, +10);
+          break;
+        }
+        }
       }
 
-	  ImGui::SeparatorText("Bonus parameters");
-	  static int rad = 0;
-	  ImGui::RadioButton("Quadratic", &rad, 0);
-	  ImGui::RadioButton("Cubic", &rad, 1);
-	  ImGui::RadioButton("Super Quadric", &rad, 2);
-
-	  ImGui::SliderFloat("a", &scene.quadraticParams.x, -10, +10); 
-	  ImGui::SliderFloat("b", &scene.quadraticParams.y, -10, +10); 
-	  ImGui::SliderFloat("c", &scene.quadraticParams.z, -10, +10); 
-	  
       ImGui::End();
     }
 

@@ -17,7 +17,7 @@ struct Scene {
 
   // private:
   static constexpr auto INITIAL_POINT_CAPACITY = 4096;
-  std::vector<glm::vec2> points{};
+  std::vector<glm::vec2> commitedPoints{};
   std::vector<glm::vec2> previewPoints{};
 
   glm::ivec2 smallStart = {-1, -1};
@@ -33,15 +33,32 @@ struct Scene {
 
   bool circle = false;
 
-
-  glm::vec3 quadraticParams{1};
-  glm::vec4 cubicParams{1};
-  glm::vec3 superParams{1};
+  enum struct BonusState {
+    NONE,
+    QUADRATIC,
+    CUBIC,
+    SUPER_QUADRIC,
+  } bonusState = BonusState::NONE;
+  std::vector<glm::vec2> bonusPoints{};
+  glm::ivec2 bonusOffset;
+  glm::vec3 quadraticParams;
+  glm::vec4 cubicParams;
+  glm::vec3 superParams;
 
   bool startSet() const { return smallStart != glm::ivec2{-1, -1}; }
   void resetStart() { smallStart = {-1, -1}; }
 
+  void bresenham(std::vector<glm::vec2> &points, const glm::ivec2 start,
+                 const glm::ivec2 end);
+  void midPointCircle(std::vector<glm::vec2> &points, const glm::ivec2 start,
+                      const glm::ivec2 end);
+  void midPointEllipse(std::vector<glm::vec2> &points, const glm::ivec2 start,
+                       const glm::ivec2 size);
   const std::vector<glm::vec2> &generatePreview();
+  void quadratic(std::vector<glm::vec2> &points, const glm::vec3 params);
+  void cubic(std::vector<glm::vec2> &points, const glm::vec4 params);
+  void superQuadric(std::vector<glm::vec2> &points, const glm::vec3 params);
+  const std::vector<glm::vec2> &generateBonus();
 
   void commitEndPoints();
 
